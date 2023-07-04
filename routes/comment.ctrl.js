@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { Posts, Likes, Comments } = require('../models');
+const { Posts, Users, Comments } = require('../models');
 const authmiddleware = require('../middlewares/auth-middleware');
 const { Op } = require('sequelize');
 
@@ -10,8 +10,7 @@ const router = express.Router();
 router.post('/:postId/comments', authmiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
-    const { comment: content } = req.body;
-    console.log(content);
+    const { comment } = req.body;
     const { userId } = res.locals.user;
 
     if (!req.body) {
@@ -32,7 +31,7 @@ router.post('/:postId/comments', authmiddleware, async (req, res) => {
     await Comments.create({
       userId,
       postId,
-      content,
+      comment,
     });
 
     return res.status(201).json({ message: '댓글을 작성하였습니다. ' });
@@ -87,7 +86,7 @@ router.get('/:postId/comments', async (req, res) => {
 router.put('/:postId/comments/:commentId', authmiddleware, async (req, res) => {
   try {
     const { postId, commentId } = req.params;
-    const { comment: content } = req.body;
+    const { comment } = req.body;
 
     const findPost = await Posts.findOne({
       where: { postId },
@@ -108,7 +107,7 @@ router.put('/:postId/comments/:commentId', authmiddleware, async (req, res) => {
 
     await Comments.update(
       {
-        content,
+        comment,
       },
       {
         where: {
@@ -130,7 +129,6 @@ router.delete(
   async (req, res) => {
     try {
       const { postId, commentId } = req.params;
-      const { comment: content } = req.body;
 
       const findPost = await Posts.findOne({
         where: { postId },
