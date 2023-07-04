@@ -2,6 +2,6 @@
 
 ## ERD
 
-![ERD](/hanghae99_lv3_ERD.png)
+![ERD](/hanghae_LV4_ERD.PNG)
 
 ---
