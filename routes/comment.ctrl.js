@@ -11,6 +11,7 @@ router.post('/:postId/comments', authmiddleware, async (req, res) => {
   try {
     const { postId } = req.params;
     const { comment: content } = req.body;
+    console.log(content);
     const { userId } = res.locals.user;
 
     if (!req.body) {

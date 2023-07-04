@@ -17,7 +17,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      content: {
+      conment: {
         allowNull: false,
         type: Sequelize.STRING,
       },
