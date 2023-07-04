@@ -79,12 +79,26 @@ router.get('/like', authmiddleware, async (req, res) => {
           require: false,
         },
       ],
+      group: ['postId'],
       order: [['createdAt', 'DESC']],
       raw: true,
     });
     console.log(findLikes);
     // console.log(findLikes[0]['User.nickname']);
-    res.send('좋아요 게시글 조회');
+
+    const data = findLikes.map((like) => {
+      return {
+        postId: like.postId,
+        userId: like.userId,
+        nickname: like['User.nickname'],
+        title: like.title,
+        createdAt: like.createdAt,
+        updatedAt: like.updatedAt,
+        likes: like['Likes.likes'],
+      };
+    });
+
+    res.status(200).json({ posts: data });
   } catch (err) {
     console.error(err);
   }
