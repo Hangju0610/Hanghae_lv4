@@ -62,6 +62,9 @@ router.get('/:postId/comments', async (req, res) => {
           attributes: ['nickname'],
         },
       ],
+      where: {
+        [Op.and]: { postId },
+      },
       order: [['createdAt', 'DESC']],
     });
 
@@ -86,6 +89,7 @@ router.get('/:postId/comments', async (req, res) => {
 router.put('/:postId/comments/:commentId', authmiddleware, async (req, res) => {
   try {
     const { postId, commentId } = req.params;
+
     const { comment } = req.body;
 
     const findPost = await Posts.findOne({

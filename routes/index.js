@@ -9,6 +9,6 @@ const router = express.Router();
 
 router.use('/login', loginRouter);
 router.use('/signup', signupRouter);
-router.use('/posts', postRouter, commentRouter, likeRouter);
+router.use('/posts', likeRouter, postRouter, commentRouter);
 
 module.exports = router;
