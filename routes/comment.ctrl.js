@@ -89,8 +89,14 @@ router.get('/:postId/comments', async (req, res) => {
 router.put('/:postId/comments/:commentId', authmiddleware, async (req, res) => {
   try {
     const { postId, commentId } = req.params;
-
+    const { userId } = res.locals.user;
     const { comment } = req.body;
+
+    if (!req.body) {
+      return res
+        .status(412)
+        .json({ errorMessage: '데이터 형식이 올바르지 않습니다. ' });
+    }
 
     const findPost = await Posts.findOne({
       where: { postId },
@@ -107,6 +113,11 @@ router.put('/:postId/comments/:commentId', authmiddleware, async (req, res) => {
       return res
         .status(404)
         .json({ errorMessage: '댓글을 찾을 수 없습니다. ' });
+    }
+    if (userId !== findComment.userId) {
+      return res
+        .status(403)
+        .json({ errorMessage: '댓글의 수정 권한이 없습니다.' });
     }
 
     await Comments.update(
@@ -133,7 +144,7 @@ router.delete(
   async (req, res) => {
     try {
       const { postId, commentId } = req.params;
-
+      const { userId } = res.locals.user;
       const findPost = await Posts.findOne({
         where: { postId },
       });
@@ -149,6 +160,11 @@ router.delete(
         return res
           .status(404)
           .json({ errorMessage: '댓글을 찾을 수 없습니다. ' });
+      }
+      if (userId !== findComment.userId) {
+        return res
+          .status(403)
+          .json({ errorMessage: '댓글의 수정 권한이 없습니다.' });
       }
 
       await Comments.destroy({

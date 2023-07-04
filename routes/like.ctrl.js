@@ -98,6 +98,10 @@ router.get('/like', authmiddleware, async (req, res) => {
       };
     });
 
+    if (!data) {
+      return res.status(404).json({ errorMessage: '좋아요없숨' });
+    }
+
     res.status(200).json({ posts: data });
   } catch (err) {
     console.error(err);
