@@ -86,17 +86,19 @@ router.get('/like', authmiddleware, async (req, res) => {
     console.log(findLikes);
     // console.log(findLikes[0]['User.nickname']);
 
-    const data = findLikes.map((like) => {
-      return {
-        postId: like.postId,
-        userId: like.userId,
-        nickname: like['User.nickname'],
-        title: like.title,
-        createdAt: like.createdAt,
-        updatedAt: like.updatedAt,
-        likes: like['Likes.likes'],
-      };
-    });
+    const data = findLikes
+      .map((like) => {
+        return {
+          postId: like.postId,
+          userId: like.userId,
+          nickname: like['User.nickname'],
+          title: like.title,
+          createdAt: like.createdAt,
+          updatedAt: like.updatedAt,
+          likes: like['Likes.likes'],
+        };
+      })
+      .sort((a, b) => b['likes'] - a['likes']);
 
     if (!data) {
       return res.status(404).json({ errorMessage: '좋아요없숨' });
