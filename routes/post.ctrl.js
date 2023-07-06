@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { Posts, Users } = require('../models');
+const { Posts, Users, Likes, sequelize } = require('../models');
 const authMiddleware = require('../middlewares/auth-middleware');
 const { postSchema } = require('../middlewares/auth.validation');
 const { Op } = require('sequelize');
@@ -50,18 +50,28 @@ router.get('/', async (_, res) => {
           attributes: ['nickname'],
           required: false,
         },
+        {
+          model: Likes,
+          attributes: [
+            [sequelize.fn('COUNT', sequelize.col('Likes.postId')), 'likes'],
+          ],
+          require: false,
+        },
       ],
+      group: ['postId'],
       order: [['createdAt', 'DESC']],
+      raw: true,
     });
 
     const postList = findPosts.map((post) => {
       return {
         postId: post.postId,
         userId: post.userId,
-        nickname: post.User.nickname,
+        nickname: post['User.nickname'],
         title: post.title,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
+        likes: post['Likes.likes'],
       };
     });
 
@@ -92,17 +102,27 @@ router.get('/:postId', async (req, res) => {
           attributes: ['nickname'],
           required: false,
         },
+        {
+          model: Likes,
+          attributes: [
+            [sequelize.fn('COUNT', sequelize.col('Likes.postId')), 'likes'],
+          ],
+          require: false,
+        },
       ],
+      order: [['createdAt', 'DESC']],
+      raw: true,
     });
 
     const post = {
       postId: findPost['postId'],
       userId: findPost['userId'],
-      nickname: findPost['User']['nickname'],
+      nickname: findPost['Users.nickname'],
       title: findPost['title'],
       content: findPost['content'],
       createdAt: findPost['createdAt'],
       updatedAt: findPost['updatedAt'],
+      likes: findPost['Likes.likes'],
     };
 
     res.status(200).json({ post: post });

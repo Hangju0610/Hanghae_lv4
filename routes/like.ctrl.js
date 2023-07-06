@@ -63,8 +63,14 @@ router.get('/like', authmiddleware, async (req, res) => {
   try {
     const { userId } = res.locals.user;
     const findLikes = await Posts.findAll({
-      attributes: ['postId', 'userId', 'title', 'createdAt', 'updatedAt'],
-      where: { userId },
+      attributes: [
+        'postId',
+        'userId',
+        'title',
+        'createdAt',
+        'updatedAt',
+        [sequelize.fn('COUNT', sequelize.col('Likes.postId')), 'likes'],
+      ],
       include: [
         {
           model: Users,
@@ -73,18 +79,32 @@ router.get('/like', authmiddleware, async (req, res) => {
         },
         {
           model: Likes,
-          attributes: [
-            [sequelize.fn('COUNT', sequelize.col('Likes.postId')), 'likes'],
-          ],
+          attributes: [],
           require: false,
         },
       ],
+      // 조건 추가
+      where: {
+        postId: {
+          [Op.in]: sequelize.literal(
+            `(SELECT PostId FROM Likes WHERE UserId = ${userId})`
+          ),
+        },
+      },
       group: ['postId'],
       order: [['createdAt', 'DESC']],
       raw: true,
     });
-    console.log(findLikes);
-    // console.log(findLikes[0]['User.nickname']);
+    // SQL 쿼리문
+    // SELECT P.postId, P.UserId, P.title, COUNT(L.PostId) AS "like"
+    // FROM Posts AS P
+    // LEFT JOIN Likes AS L ON P.postId = L.PostId
+    // WHERE P.postId IN (
+    // SELECT PostId
+    // FROM Likes
+    // WHERE UserId =
+    // )
+    // GROUP BY P.postId
 
     const data = findLikes
       .map((like) => {
@@ -95,7 +115,7 @@ router.get('/like', authmiddleware, async (req, res) => {
           title: like.title,
           createdAt: like.createdAt,
           updatedAt: like.updatedAt,
-          likes: like['Likes.likes'],
+          likes: like.likes,
         };
       })
       .sort((a, b) => b['likes'] - a['likes']);
