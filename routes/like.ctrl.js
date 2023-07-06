@@ -95,6 +95,7 @@ router.get('/like', authmiddleware, async (req, res) => {
       order: [['createdAt', 'DESC']],
       raw: true,
     });
+
     // SQL 쿼리문
     // SELECT P.postId, P.UserId, P.title, COUNT(L.PostId) AS "like"
     // FROM Posts AS P
